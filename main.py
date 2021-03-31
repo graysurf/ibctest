@@ -30,7 +30,9 @@ config = {
     "bet_type": default_parser["bet_type"],
 }
 
+file_logger = log.get_file_logger("main")
 logger = log.get_logger("main")
+
 headers = {}
 
 
@@ -82,7 +84,8 @@ def init_page(driver):
         logger.info("selected bet_type: %s", config["bet_type"])
         bettype_btn.click()
     except Exception as e:
-        logger.error(e)
+        file_logger.warning(e)
+        logger.warning(e)
         pass
     time.sleep(10)
 
@@ -270,6 +273,7 @@ def main():
             driver.refresh()
             time.sleep(10)
         if received == 0:
+            file_logger.info("no received data")
             logger.info("no received data")
             driver.quit()
             return
@@ -284,6 +288,7 @@ def main():
             else:
                 body.send_keys(Keys.PAGE_UP)
     except Exception as e:
+        file_logger.error(e)
         logger.error(e)
         driver.quit()
         if interrupted():
@@ -298,4 +303,5 @@ while not interrupted():
         time.sleep(10)
         logger.info("restart chrome...")
     except Exception as e:
+        file_logger.error(e)
         logger.error(e)

@@ -5,17 +5,26 @@ def get_logger(name):
     logger = logging.getLogger(name)
     logger.setLevel(logging.DEBUG)
 
-    # create console handler and set level to debug
     ch = logging.StreamHandler()
     ch.setLevel(logging.DEBUG)
-    # create formatter
     formatter = logging.Formatter(
         "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     )
-    # add formatter to ch
     ch.setFormatter(formatter)
-    # add ch to logger
     logger.addHandler(ch)
-
     coloredlogs.install(level="DEBUG", logger=logger)
+    return logger
+
+
+def get_file_logger(name):
+    logger = logging.getLogger("f_" + name)
+    logger.setLevel(logging.DEBUG)
+
+    fh = logging.FileHandler("log")
+    fh.setLevel(logging.DEBUG)
+    formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
+    fh.setFormatter(formatter)
+    logger.addHandler(fh)
     return logger
