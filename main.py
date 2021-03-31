@@ -12,6 +12,7 @@ import numpy as np
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait as wait
+from selenium.webdriver.common.keys import Keys
 
 import log
 from driver import get_driver, handle_alert, interrupted
@@ -272,10 +273,16 @@ def main():
             logger.info("no received data")
             driver.quit()
             return
+        body = driver.find_element_by_css_selector("body")
+        body.click()
         for i in range(3600):
-            time.sleep(int(sleep_time))
-            logws(driver)
             driver = handle_alert(driver, init_page)
+            logws(driver)
+            time.sleep(int(sleep_time))
+            if i % 200 < 100:
+                body.send_keys(Keys.PAGE_DOWN)
+            else:
+                body.send_keys(Keys.PAGE_UP)
     except Exception as e:
         logger.error(e)
         driver.quit()
