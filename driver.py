@@ -1,8 +1,29 @@
 import os
+import signal
+import sys
 
 from selenium import webdriver
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.chrome.options import Options
+
+import log
+
+logger = log.get_logger("driver")
+
+drivers = []
+
+
+def sigint_handler(sig, frame):
+    logger.info("close driver...")
+    for driver in drivers:
+        try:
+            driver.close()
+        except:
+            pass
+    sys.exit(0)
+
+
+signal.signal(signal.SIGINT, sigint_handler)
 
 
 def get_driver():
@@ -26,4 +47,5 @@ def get_driver():
         options=chrome_options,
         desired_capabilities=chrm_caps,
     )
+    drivers.append(driver)
     return driver

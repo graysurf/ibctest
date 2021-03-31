@@ -243,11 +243,10 @@ def parse_record(rows, header):
 
 def main():
     init_page()
-    time.sleep(30)
+    time.sleep(10)
     logger.info("init finished...")
     sleep_time = config["sleep_time"]
     while True:
-        # logger.info("sleeping {} seconds".format(sleep_time))
         time.sleep(int(sleep_time))
         logws()
     logger.info("done")
