@@ -158,8 +158,9 @@ def logws():
 
                 data_match_data = list(seq(objs).filter(f_m).filter(f_m_infos).map(setTime))
                 if len(data_match_data):
-                    logger.info("write match_data %s rows", len(data_match_data))
-                    db.col_match_data.insert_many(data_match_data)
+                    logger.info("get match_data %s rows", len(data_match_data))
+                    db.save_matchid(data_match_data)
+                    # db.col_odds.insert_many(data_odds)
 
                 data_match_events = list(seq(objs).filter(f_m).filter(f_m_events).map(setTime))
                 if len(data_match_events):
@@ -168,8 +169,8 @@ def logws():
 
                 data_odds = list(seq(objs).filter(f_o).filter(f_o_infos).map(setTime))
                 if len(data_odds):
-                    logger.info("write odds_data %s rows", len(data_odds))
-                    db.col_odds.insert_many(data_odds)
+                    logger.info("get odds_data %s rows", len(data_odds))
+                    db.save_oddid(data_odds)
 
                 data_odds_events = list(seq(objs).filter(f_o).filter(f_o_events).map(setTime))
                 if len(data_odds_events):
