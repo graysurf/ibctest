@@ -1,15 +1,20 @@
 import configparser
 import itertools
+import sys
 import os
+import random
 import time
 from datetime import datetime
 import json
 import re
 from functional import seq
 import numpy as np
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait as wait
 
 import log
-from driver import get_driver
+from driver import get_driver, handle_alert, interrupted
 import db
 
 parser = configparser.ConfigParser()
@@ -18,14 +23,13 @@ default_parser = parser[configparser.DEFAULTSECT]
 config = {
     "sleep_time": default_parser["sleep_time"],
     "url": default_parser["url"],
-    "id": default_parser["id"],
+    "id": json.loads(default_parser["id"]),
     "pwd": default_parser["pwd"],
     "time": default_parser["time"],
     "bet_type": default_parser["bet_type"],
 }
 
 logger = log.get_logger("main")
-driver = get_driver()
 headers = {}
 
 
@@ -38,10 +42,10 @@ def is_integer(n):
         return float(n).is_integer()
 
 
-def init_page():
-    logger.info("Web driver Init")
+def init_page(driver):
+    logger.info("web driver init")
     base_url = config["url"]
-    logger.info("Loading URL ....")
+    logger.info("loading URL...")
     driver.get(base_url)
 
     # go to login page
@@ -51,7 +55,7 @@ def init_page():
 
     # login
     id_input = driver.find_element_by_id("txtID")
-    id_input.send_keys(config["id"])
+    id_input.send_keys(config["id"][random.randint(0, 2)])
     pwd_input = driver.find_element_by_id("txtPW")
     pwd_input.send_keys(config["pwd"])
     submit_btn = driver.find_element_by_class_name("login__item-btn")
@@ -59,26 +63,31 @@ def init_page():
     logger.info("login finished")
 
     # select time
-    driver.implicitly_wait(5)
-    logger.info(driver.page_source)
-    time_btn = driver.find_element_by_xpath(
-        "//span[@class='text' and contains(text(),'{}')]".format(config["time"])
+    time_xpath = "//span[@class='text' and contains(text(),'{}')]".format(
+        config["time"]
     )
-    time_btn.click()
+    wait(driver, 5).until(EC.element_to_be_clickable((By.XPATH, time_xpath)))
+    time_btn = driver.find_element_by_xpath(time_xpath)
     logger.info("selected time: %s", config["time"])
+    time_btn.click()
 
-    # # select bet type
-    driver.implicitly_wait(5)
-    bettype_btn = driver.find_element_by_xpath(
-        "//span[@class='betTypeName' and contains(text(),'{}')]".format(
+    # select bet type
+    try:
+        bettype_xpath = "//span[@class='betTypeName' and @title='{}']".format(
             config["bet_type"]
         )
-    )
-    bettype_btn.click()
-    logger.info("selected bet_type: %s", config["bet_type"])
+        wait(driver, 5).until(EC.element_to_be_clickable((By.XPATH, bettype_xpath)))
+        bettype_btn = driver.find_element_by_xpath(bettype_xpath)
+        logger.info("selected bet_type: %s", config["bet_type"])
+        bettype_btn.click()
+    except Exception as e:
+        logger.error(e)
+        pass
+    time.sleep(10)
 
 
-def logws():
+def logws(driver):
+    received = 0
     for wsData in driver.get_log("performance"):
         # print(wsData)
         wsJson = json.loads((wsData["message"]))
@@ -181,6 +190,9 @@ def logws():
                 data_match_data = list(
                     seq(objs).filter(f_m).filter(f_m_infos).map(setTime)
                 )
+
+                received += len(data_match_data)
+
                 if len(data_match_data):
                     logger.info("get match_data %s rows", len(data_match_data))
                     db.save_matchid(data_match_data)
@@ -208,6 +220,7 @@ def logws():
         if wsJson["message"]["method"] == "Network.webSocketFrameSent":
             # logger.info("webSocketFrameSent")
             logger.info("Tx :" + wsJson["message"]["params"]["response"]["payloadData"])
+    return received
 
 
 def parse_header(rows):
@@ -242,14 +255,40 @@ def parse_record(rows, header):
 
 
 def main():
-    init_page()
-    time.sleep(10)
-    logger.info("init finished...")
     sleep_time = config["sleep_time"]
-    while True:
-        time.sleep(int(sleep_time))
-        logws()
-    logger.info("done")
+    driver = get_driver()
+    try:
+        init_page(driver)
+        logger.info("init finished")
+        received = 0
+        for i in range(3):
+            received += logws(driver)
+            if received > 0:
+                break
+            logger.info("refresh page...")
+            driver.refresh()
+            time.sleep(10)
+        if received == 0:
+            logger.info("no received data")
+            driver.quit()
+            return
+        for i in range(3600):
+            time.sleep(int(sleep_time))
+            logws(driver)
+            driver = handle_alert(driver, init_page)
+    except Exception as e:
+        logger.error(e)
+        driver.quit()
+        if interrupted():
+            return
+    driver.quit()
 
 
-main()
+while not interrupted():
+    try:
+        main()
+        logger.info("sleep 10 second....")
+        time.sleep(10)
+        logger.info("restart chrome...")
+    except Exception as e:
+        logger.error(e)

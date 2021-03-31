@@ -20,13 +20,12 @@ matchset = set()
 
 def save_matchid(matches):
     for match in matches:
-        logger.info(match)
         matchid = match["matchid"]
         if (
             matchid not in matchset
             and col_match_data.find_one({"matchid": matchid}) is None
         ):
-            logger.info("write match %s", match)
+            logger.info("write match: %s", matchid)
             matchset.add(matchid)
             col_match_data.insert_one(match)
 
@@ -38,6 +37,6 @@ def save_oddid(oddses):
     for odds in oddses:
         oddsid = odds["oddsid"]
         if oddsid not in oddsset and col_odds_data.find_one({"oddsid": oddsid}) is None:
-            logger.info("write odd %s", odds)
+            logger.info("write odds: %s", oddsid)
             oddsset.add(oddsid)
             col_odds_data.insert_one(odds)
