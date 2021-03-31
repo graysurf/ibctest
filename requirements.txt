@@ -1,0 +1,9 @@
+coloredlogs==15.0
+dill==0.3.3
+humanfriendly==9.1
+numpy==1.19.5
+pyfunctional==1.4.3
+pymongo==3.11.3
+selenium==3.141.0
+tabulate==0.8.9
+urllib3==1.26.4

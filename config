@@ -1,0 +1,11 @@
+[DEFAULT]
+sleep_time = 1
+url = https://rs5s9.nova88.com/Sports/
+# id = M222MAB089
+# id = M222MAB285
+id = M222MAB585
+pwd = M222MABa
+# Early, Today, Live
+time = Today
+# HDP & OU, Odd/Even
+bet_type = HDP & OU
