@@ -1,6 +1,4 @@
 import configparser
-import itertools
-import sys
 import os
 import random
 import time
@@ -8,7 +6,6 @@ from datetime import datetime
 import json
 import re
 from functional import seq
-import numpy as np
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait as wait
@@ -86,7 +83,6 @@ def init_page(driver):
     except Exception as e:
         file_logger.warning(e)
         logger.warning(e)
-        pass
     time.sleep(10)
 
 
