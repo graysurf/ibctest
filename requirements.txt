@@ -7,3 +7,4 @@ pymongo==3.11.3
 selenium==3.141.0
 tabulate==0.8.9
 urllib3==1.26.4
+requests==2.25.1

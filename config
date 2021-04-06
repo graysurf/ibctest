@@ -8,3 +8,4 @@ pwd = M222MABa
 time = Today
 # HDP & OU, Odd/Even
 bet_type = HDP & OU
+api_endpoint = http://192.168.47.162:5000/api/maxbet

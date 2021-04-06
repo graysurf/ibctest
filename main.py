@@ -5,6 +5,8 @@ import time
 from datetime import datetime
 import json
 import re
+import requests
+
 from functional import seq
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
@@ -16,6 +18,7 @@ from driver import get_driver, handle_alert, interrupted
 import db
 import file
 
+
 parser = configparser.ConfigParser()
 parser.read(os.path.realpath("config"))
 default_parser = parser[configparser.DEFAULTSECT]
@@ -26,6 +29,7 @@ config = {
     "pwd": default_parser["pwd"],
     "time": default_parser["time"],
     "bet_type": default_parser["bet_type"],
+    "api_endpoint": default_parser["api_endpoint"],
 }
 
 file_logger = log.get_file_logger("main")
@@ -173,17 +177,22 @@ def logws(driver):
 
                 html = driver.page_source
                 data_socket = {
-                    "data": '42["m",["b{id}",{records}]'.format(
-                        id=id, records=json.dumps(records, ensure_ascii=False)
+                    "socketData": '42["m",["b{id}",{records}]'.format(
+                        id=id,
+                        records=json.dumps(records, ensure_ascii=False, default=str),
                     ),
                     "originalData": message,
                     "timeStamp": int(received_timestamp * 1000),
                     "length": len(objs),
-                    "time": received_timestamp,
+                    "receiveTimestamp": received_timestamp,
                     "sportbettype": config["bet_type"],
                     "sportmenunavtype": config["time"],
                     "title": header,
                 }
+                requests.post(
+                    "{}/{}".format(config["api_endpoint"], "SaveSocketData"),
+                    json=data_socket,
+                )
                 db.col_socket.insert_one(data_socket)
 
                 data_match_data = list(
@@ -292,9 +301,10 @@ def main():
 while not interrupted():
     try:
         main()
-        logger.info("sleep 10 second...")
-        time.sleep(10)
-        logger.info("restart chrome...")
     except Exception as e:
         file_logger.error(e)
         logger.error(e)
+        if not interrupted():
+            logger.info("sleep 10 second...")
+            time.sleep(10)
+            logger.info("restart chrome...")

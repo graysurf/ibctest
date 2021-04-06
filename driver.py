@@ -20,9 +20,9 @@ def interrupted():
 
 
 def sig_handler(sig, frame):
-    logger.info("quit driver...")
     global interrupt
     interrupt = True
+    raise Exception("quit driver...")
 
 
 signal.signal(signal.SIGINT, sig_handler)
