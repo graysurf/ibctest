@@ -271,7 +271,6 @@ def main():
         if received == 0:
             file_logger.info("no received data")
             logger.info("no received data")
-            driver.quit()
             return
         body = driver.find_element_by_css_selector("body")
         body.click()
@@ -286,10 +285,8 @@ def main():
     except Exception as e:
         file_logger.error(e)
         logger.error(e)
+    finally:
         driver.quit()
-        if interrupted():
-            return
-    driver.quit()
 
 
 while not interrupted():
