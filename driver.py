@@ -12,8 +12,6 @@ import log
 
 logger = log.get_logger("driver")
 
-drivers = []
-
 interrupt = False
 
 
@@ -25,11 +23,6 @@ def sig_handler(sig, frame):
     logger.info("quit driver...")
     global interrupt
     interrupt = True
-    for driver in drivers:
-        try:
-            driver.quit()
-        except:
-            pass
 
 
 signal.signal(signal.SIGINT, sig_handler)
@@ -47,9 +40,9 @@ def get_driver():
     chrome_options.add_argument(
         "--no-sandbox"
     )  # required when running as root user. otherwise you would get no sandbox errors.
-    chrome_options.add_argument("--enable-devtools-experiments")
-    chrome_options.add_argument("--force-devtools-available")
-    chrome_options.add_argument("--debug-devtools")
+    # chrome_options.add_argument("--enable-devtools-experiments")
+    # chrome_options.add_argument("--force-devtools-available")
+    # chrome_options.add_argument("--debug-devtools")
 
     chrm_caps = webdriver.DesiredCapabilities.CHROME.copy()
     chrm_caps["goog:loggingPrefs"] = {"performance": "ALL"}
@@ -59,7 +52,6 @@ def get_driver():
         options=chrome_options,
         desired_capabilities=chrm_caps,
     )
-    drivers.append(driver)
     return driver
 
 

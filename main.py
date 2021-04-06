@@ -121,7 +121,7 @@ def logws(driver):
                 records = parse_record(raw[2], header)
 
             else:
-                logger.warn("not match: %s.....", message[:100])
+                logger.warn("not match: %s...", message[:100])
 
             if len(records) > 0:
                 # ['type', 'o', 'oddsid', 321577036, 'odds1a', 0.67, 'odds2a', -0.97]
@@ -225,7 +225,7 @@ def logws(driver):
 
 def parse_header(rows):
     header = []
-    # 42["m","b9",[["c","c4","c3b8e2a1-r3","cdf55c8e34ee810b-b9"],["f",0,["type","oddsid",.....
+    # 42["m","b9",[["c","c4","c3b8e2a1-r3","cdf55c8e34ee810b-b9"],["f",0,["type","oddsid",...
     for raw in rows:
         if raw[0] != "f":
             break
@@ -247,7 +247,7 @@ def parse_header_row(rows, header):
 
 
 def parse_record(rows, header):
-    # 42["m","b4",[[0,"o",3,318289758,1,41923191,.....
+    # 42["m","b4",[[0,"o",3,318289758,1,41923191,...
     for record in rows:
         for idx in range(0, len(record), 2):
             record[idx] = header[record[idx]]
@@ -292,7 +292,7 @@ def main():
 while not interrupted():
     try:
         main()
-        logger.info("sleep 10 second....")
+        logger.info("sleep 10 second...")
         time.sleep(10)
         logger.info("restart chrome...")
     except Exception as e:
