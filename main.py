@@ -14,6 +14,7 @@ from selenium.webdriver.common.keys import Keys
 import log
 from driver import get_driver, handle_alert, interrupted
 import db
+import file
 
 parser = configparser.ConfigParser()
 parser.read(os.path.realpath("config"))
@@ -179,8 +180,6 @@ def logws(driver):
                     "timeStamp": int(received_timestamp * 1000),
                     "length": len(objs),
                     "time": received_timestamp,
-                    "html": html,
-                    # "events": objs,
                     "sportbettype": config["bet_type"],
                     "sportmenunavtype": config["time"],
                     "title": header,
@@ -196,7 +195,6 @@ def logws(driver):
                 if len(data_match_data):
                     logger.info("get match_data %s rows", len(data_match_data))
                     db.save_matchid(data_match_data)
-                    # db.col_odds.insert_many(data_odds)
 
                 data_match_events = list(
                     seq(objs).filter(f_m).filter(f_m_events).map(setTime)
@@ -216,6 +214,8 @@ def logws(driver):
                 if len(data_odds_events):
                     logger.info("write odds_events %s rows", len(data_odds_events))
                     db.col_odds_events.insert_many(data_odds_events)
+
+                file.write_file(int(received_timestamp * 1000), html)
 
         if wsJson["message"]["method"] == "Network.webSocketFrameSent":
             # logger.info("webSocketFrameSent")
