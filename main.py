@@ -53,6 +53,12 @@ def init_page(driver):
     logger.info("loading URL...")
     driver.get(base_url)
 
+    # check under maintenance
+    while len(driver.find_elements_by_class_name("UMTitle")) != 0:
+        logger.info("under maintenance, sleeping 60 second...")
+        time.sleep(60)
+        driver.refresh()
+
     # go to login page
     driver.implicitly_wait(3)
     login_btn = driver.find_element_by_class_name("btn-highlight")
