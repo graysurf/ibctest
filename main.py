@@ -185,7 +185,7 @@ def logws(driver):
                 data_socket = {
                     "socketData": '42["m",["b{id}",{records}]'.format(
                         id=id,
-                        records=json.dumps(records, ensure_ascii=False, default=str),
+                        records=json.dumps(objs),
                     ),
                     "originalData": message,
                     "timeStamp": int(received_timestamp * 1000),
