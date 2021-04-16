@@ -1,6 +1,7 @@
 [DEFAULT]
 sleep_time = 1
-folder = /opt/ibc/html
+enable_log_html = False
+html_folder = /opt/ibc/html
 url = https://rs5s9.nova88.com/Sports/
 id = ["M222MAB089", "M222MAB285", "M222MAB585"]
 pwd = M222MABa

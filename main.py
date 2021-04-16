@@ -60,9 +60,7 @@ def init_page(driver):
     logger.info("login finished")
 
     # select time
-    time_xpath = "//span[@class='text' and contains(text(),'{}')]".format(
-        config.time
-    )
+    time_xpath = "//span[@class='text' and contains(text(),'{}')]".format(config.time)
     wait(driver, 5).until(EC.element_to_be_clickable((By.XPATH, time_xpath)))
     time_btn = driver.find_element_by_xpath(time_xpath)
     logger.info("selected time: %s", config.time)
