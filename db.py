@@ -1,10 +1,12 @@
+import log
+
 import pymongo
 
-import log
+import config
 
 logger = log.get_logger("db")
 
-client = pymongo.MongoClient("mongodb://localhost:27017/")
+client = pymongo.MongoClient(config.db_endpoint)
 db = client["cmd-spider"]
 
 col_socket = db["socket-data"]

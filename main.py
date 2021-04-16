@@ -1,4 +1,3 @@
-import configparser
 import os
 import random
 import time
@@ -17,20 +16,7 @@ import log
 from driver import get_driver, handle_alert, interrupted
 import db
 import file
-
-
-parser = configparser.ConfigParser()
-parser.read(os.path.realpath("config"))
-default_parser = parser[configparser.DEFAULTSECT]
-config = {
-    "sleep_time": default_parser["sleep_time"],
-    "url": default_parser["url"],
-    "id": json.loads(default_parser["id"]),
-    "pwd": default_parser["pwd"],
-    "time": default_parser["time"],
-    "bet_type": default_parser["bet_type"],
-    "api_endpoint": default_parser["api_endpoint"],
-}
+import config
 
 file_logger = log.get_file_logger("main")
 logger = log.get_logger("main")
@@ -49,7 +35,7 @@ def is_integer(n):
 
 def init_page(driver):
     logger.info("web driver init")
-    base_url = config["url"]
+    base_url = config.url
     logger.info("loading URL...")
     driver.get(base_url)
 
@@ -66,30 +52,30 @@ def init_page(driver):
 
     # login
     id_input = driver.find_element_by_id("txtID")
-    id_input.send_keys(config["id"][random.randint(0, 2)])
+    id_input.send_keys(config.id[random.randint(0, 2)])
     pwd_input = driver.find_element_by_id("txtPW")
-    pwd_input.send_keys(config["pwd"])
+    pwd_input.send_keys(config.pwd)
     submit_btn = driver.find_element_by_class_name("login__item-btn")
     submit_btn.click()
     logger.info("login finished")
 
     # select time
     time_xpath = "//span[@class='text' and contains(text(),'{}')]".format(
-        config["time"]
+        config.time
     )
     wait(driver, 5).until(EC.element_to_be_clickable((By.XPATH, time_xpath)))
     time_btn = driver.find_element_by_xpath(time_xpath)
-    logger.info("selected time: %s", config["time"])
+    logger.info("selected time: %s", config.time)
     time_btn.click()
 
     # select bet type
     try:
         bettype_xpath = "//span[@class='betTypeName' and @title='{}']".format(
-            config["bet_type"]
+            config.bet_type
         )
         wait(driver, 5).until(EC.element_to_be_clickable((By.XPATH, bettype_xpath)))
         bettype_btn = driver.find_element_by_xpath(bettype_xpath)
-        logger.info("selected bet_type: %s", config["bet_type"])
+        logger.info("selected bet_type: %s", config.bet_type)
         bettype_btn.click()
     except Exception as e:
         file_logger.warning(e)
@@ -191,12 +177,12 @@ def logws(driver):
                     "timeStamp": int(received_timestamp * 1000),
                     "length": len(objs),
                     "receiveTimestamp": received_timestamp,
-                    "sportbettype": config["bet_type"],
-                    "sportmenunavtype": config["time"],
+                    "sportbettype": config.bet_type,
+                    "sportmenunavtype": config.time,
                     "title": header,
                 }
                 requests.post(
-                    "{}/{}".format(config["api_endpoint"], "SaveSocketData"),
+                    "{}/{}".format(config.api_endpoint, "SaveSocketData"),
                     json=data_socket,
                 )
                 db.col_socket.insert_one(data_socket)
@@ -270,7 +256,7 @@ def parse_record(rows, header):
 
 
 def main():
-    sleep_time = config["sleep_time"]
+    sleep_time = config.sleep_time
     driver = get_driver()
     try:
         init_page(driver)
